@@ -1,16 +1,16 @@
-var dimension; //размерность
-var dimSQR; //квадрат размерности
-var dimSQRT; //корень размерности
-var sudokuField = []; //сетка поля игры
+var dimension;
+var dimSQR;
+var dimSQRT;
+var sudokuField = [];
 var timeout;
 
 //DLX
-var mRows; //количество строк матрицы
-var mColumns; //количество столбцов матрицы
-var matrix; //разреженная матрица
-var solvedGridDLX = []; //решенная сетка (DLX)
-var solution = []; //решение для matrix
-var keysList = []; //тор с введёнными ключами
+var mRows;
+var mColumns;
+var matrix;
+var solvedGridDLX = [];
+var solution = [];
+var keysList = [];
 var HeadNode = new Node();
 var solved = false;
 function Node()
@@ -25,18 +25,16 @@ function Node()
 }
 
 //Backtracking
-var solvedGridBacktrack = []; //решенная сетка (Backtracking)
+var solvedGridBacktrack = [];
 //Modified Backtracking
-var solvedGridModifiedBacktrack = []; //решенная сетка (Modified Backtracking)
-var valueRangeMatrix = []; //матрица диапазона значений
+var solvedGridModifiedBacktrack = [];
+var valueRangeMatrix = [];
 
-function createTable() //Создание таблицы поля игры
+function createTable()
 {
 	dimension = +document.solv.dim.value;
 	dimSQR = dimension*dimension;
 	dimSQRT = Math.sqrt(dimension);
-	//document.getElementById("DLXField").innerHTML = '';
-	//document.getElementById("BField").innerHTML = '';
 	document.getElementById("SoverField").innerHTML = '';
 	var name = '<table id="SudokuTable" class="grid'+dimension+'">';
 	var field=[name];
@@ -52,8 +50,8 @@ function createTable() //Создание таблицы поля игры
 	field.push('</table>');
 	document.getElementById('SudokuField').innerHTML=field.join('\n');
 	document.getElementById('selectAlgorithm').innerHTML = '<select size="1" name="algorithm" required><option selected value="1">DLX</option><option value="2">Backtracking</option><option value="3">Modified Backtracking</option></select>';
-	document.getElementById('find').innerHTML = '<button onclick = "findButton(); return false;">Найти решение</button>';
-	document.getElementById('reset').innerHTML = '<button onclick = "resetField(); return false;">Очистить поле</button>';
+	document.getElementById('find').innerHTML = '<button onclick = "findButton(); return false;">Find solution</button>';
+	document.getElementById('reset').innerHTML = '<button onclick = "resetField(); return false;">Reset</button>';
 }
 
 function selectCell(id,i,j)
@@ -77,24 +75,21 @@ function findButton()
 	try
 	{
 		alg = +document.solv.algorithm.value;
-		//document.getElementById("DLXField").innerHTML = '';
-		//document.getElementById("BField").innerHTML = '';
 		document.getElementById("SoverField").innerHTML = '';
 		ReadSudokuField(sudokuField);
 		if (alg == 1)
 		{
 			//DLX
-			ReadSudokuField(solvedGridDLX); //создание сетки поля игры
-			CreateMatrix(); //создание матрицы и заполнение её 0
-			ConstraintMatrix(); //заполнение матрицы 1 с учётом ограничений
-			CreateTorus(); //создание тороидального списка на основе разреженной матрицы
-			FillTorusFromSudokuField(); //заполнение списка ключами из сетки поля игры
+			ReadSudokuField(solvedGridDLX);
+			CreateMatrix();
+			ConstraintMatrix();
+			CreateTorus();
+			FillTorusFromSudokuField();
 			timeout = performance.now();
 			search(0); //DLX
 			if(!solved)
-				throw new Error("Решений нет!");
+				throw new Error("No solutions");
 			solved=false;
-			//createDLXTable();
 			CreateSolverTable();
 			OutputSolvedSudoku(solvedGridDLX);
 		}
@@ -104,8 +99,7 @@ function findButton()
 			ReadSudokuField(solvedGridBacktrack);
 			timeout = performance.now();
 			if (!Backtrack(0,0))
-				throw new Error("Решений нет!");
-			//CreateBacktrackTable();
+				throw new Error("No solutions");
 			CreateSolverTable();
 			OutputSolvedSudoku(solvedGridBacktrack);
 		}
@@ -117,14 +111,13 @@ function findButton()
 			ValueRange(sudokuField);
 			timeout = performance.now();
 			if (!ModifiedBacktrack(0,0))
-				throw new Error("Решений нет!");
-			//CreateModifiedBacktrackTable();
+				throw new Error("No solutions");
 			CreateSolverTable();
 			OutputSolvedSudoku(solvedGridModifiedBacktrack);
 		}
 		
 	} catch (e) {
-		alert("Возникла ошибка!\n"+e.message);
+		alert("Error!\n"+e.message);
 		console.log("Error! "+e.message);
 	}
 }
@@ -146,7 +139,7 @@ function unselectNumbrs(id)
 		
 }
 
-function CreateSolverTable() //Создание таблицы решенной матрицы
+function CreateSolverTable()
 {
 	var name = '<table id="solverTable" class="grid'+dimension+'">';
 	var field=[name];
@@ -165,15 +158,15 @@ function CreateSolverTable() //Создание таблицы решенной матрицы
 
 function ReadSudokuField(matrix)
 {
-	for (var i=0; i<dimension; i++) //заполнение матрицы поля игры
+	for (var i=0; i<dimension; i++)
 	{
 		matrix[i] = [];
 		for (var j=0; j<dimension; j++)
 		{
 			var a = document.getElementById(0+'x'+i+'x'+j);
-			if (isNaN(a.value) == true || parseInt(a.value)<1 || parseInt(a.value)>dimension) //Проверка на дурака, который вводит в поле игры странные письмена
+			if (isNaN(a.value) == true || parseInt(a.value)<1 || parseInt(a.value)>dimension)
 			{
-				alert("Введите, пожалуйста, цифры в диапазоне от 1 до "+dimension);
+				alert("Enter numbers from 1 to "+dimension);
 				throw SyntaxError("Incorrect data entry");
 			}
 			matrix[i][j] = +(a.value);
@@ -226,7 +219,6 @@ function CreateMatrix()
 
 function ConstraintMatrix()
 {
-	//Ограничение ячейки
 	var j=0;
 	var count=0;
 	for (var i=0; i<mRows; i++)
@@ -239,8 +231,7 @@ function ConstraintMatrix()
 			count=0;
 		}
 	}
-	
-	//Ограничение строки
+
 	var x=0;
 	count=1;
 	for (j=dimSQR; j<2*dimSQR; j++)
@@ -256,7 +247,6 @@ function ConstraintMatrix()
 			x++;
 	}
 	
-	//Ограничение столбца
 	j=2*dimSQR;
 	for (i=0; i<mRows; i++)
 	{
@@ -266,7 +256,6 @@ function ConstraintMatrix()
 			j=2*dimSQR;
 	}
 	
-	//Ограничение блока
 	x=0;
 	for (j=3*dimSQR; j<mColumns; j++)
 	{
@@ -287,7 +276,6 @@ function CreateTorus()
 {
 	var headerNode = new Node();
 	headerNode.size = -1;
-	//для всех
 	var temp = headerNode;
 	for (var i=0; i<mColumns; i++)
 	{
@@ -297,7 +285,6 @@ function CreateTorus()
 		temp.right = newNode;
 		temp = newNode;
 	}
-	//для 1
 	var id = [0,1,1];
 	for (var i=0; i<mRows; i++)
 	{
@@ -365,11 +352,11 @@ function FillTorusFromSudokuField()
 function search(k)
 {
 	var timein = performance.now();
-	if ((timein - timeout) > 60000) throw new Error("Превышено время ожидания!");
+	if ((timein - timeout) > 60000) throw new Error("I?aauoaii a?aiy i?eaaiey!");
 	if (HeadNode.right === HeadNode)
 	{
 		//Print
-		FillSolutionInGrid(); //заполнение сетки решением
+		FillSolutionInGrid();
 		solved = true;
 		return;
 	}
@@ -437,7 +424,7 @@ function FillSolutionInGrid()
 function Backtrack(i,j)
 {
 	var timein = performance.now();
-	if ((timein - timeout) > 60000) throw new Error("Превышено время ожидания!");
+	if ((timein - timeout) > 60000) throw new Error("I?aauoaii a?aiy i?eaaiey!");
 	var cell = emptyCell(solvedGridBacktrack,i,j);
 	i = cell[0];
 	j = cell[1];
@@ -490,7 +477,7 @@ function check(matrix,a,b,n)
 function ModifiedBacktrack(i,j)
 {
 	var timein = performance.now();
-	if ((timein - timeout) > 60000) throw new Error("Превышено время ожидания!");
+	if ((timein - timeout) > 60000) throw new Error("I?aauoaii a?aiy i?eaaiey!");
 	var cell = cellLeastNumberValueRange(solvedGridModifiedBacktrack);
 	i = cell[0];
 	j = cell[1];
