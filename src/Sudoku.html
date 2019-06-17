@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sudoku Solver</title>
+		<link rel="stylesheet" href="../css/style.css"></link>
+		<link rel="shortcut icon" href="favicon.png" type="image/png" />
+		<script src="../js/Sudoku.js"></script>
+	</head>
+	<body>
+		<form name="solv">
+			<table align="center" width="100%">
+			<tr>
+				<td>
+					<div class="header">
+						<h1><p>Решатель Судоку</p></h1>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="select">
+						<select onchange="createTable(); return false;" size="1" name="dim" required>
+						<option selected disabled>Размерность</option>
+						<option value="4">4x4</option>
+						<option value="9">9x9</option>
+						<option value="16">16x16</option>
+						<option value="25">25x25</option>
+						</select>
+					</div>
+					<div id="selectAlgorithm" class="select"></div>
+					<div id="find"></div>
+					<div id="reset"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div id="SolvedText"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div id ="SudokuField" class="field"></div><div id="SoverField" class="field"></div>
+				</td>
+			</tr>
+			</table>
+		</form>
+	</body>
+</html>
